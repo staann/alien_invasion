@@ -1,6 +1,7 @@
 import pygame
 from settings import Settings
-from ship import Ship  
+from ship import Ship
+from alien import Alien  
 import game_functions as gf 
 from pygame.sprite import Group
  
@@ -13,6 +14,10 @@ def run_game():
     pygame.display.set_caption("Alien Invasion")
     ship = Ship(ai_settings,screen)
     bullets = Group()
+    aliens = Group()
+    #alien = Alien(ai_settings,screen)
+    gf.create_fleet(ai_settings, screen,aliens)
+
     #bg_color = (230, 230, 230)
 # Inicia o laço principal do jogo 
     while True:
@@ -21,7 +26,7 @@ def run_game():
         ship.update()
         bullets.update() 
         # Deixa a tela mais recente visível z
-        gf.update_screen(ai_settings, screen, ship, bullets)
+        gf.update_screen(ai_settings, screen, ship, aliens, bullets)
 
 
 run_game()
