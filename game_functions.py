@@ -37,16 +37,29 @@ def check_events(ai_settings, screen, ship,bullets):
 
 def create_fleet(ai_settings, screen, aliens): #"""Cria uma frota completa de alienígenas."""
     # Cria um alienígena e calcula o número de alienígenas em uma linha # Oespaçamento entre os alienígenas é igual à largura de um alienígena u
-    alien = Alien(ai_settings, screen)
-    alien_width = alien.rect.width
+    # Cria a primeira linha de alienígenas y 
+    #for alien_number in range(number_aliens_x): # Cria um alienígena e o posiciona na linha z
+    alien = Alien(ai_settings, screen) 
+    number_aliens_x = get_number_aliens(ai_settings, alien.rect.width)
+    for alien_number in range(number_aliens_x):
+        create_alien(ai_settings, screen, aliens,alien_number)
+
+
+def get_number_aliens(ai_settings,alien_width): #"""Determina o número de 
+#alienígenas que cabem em uma  linha
     available_space_x = ai_settings.screen_width - 2 * alien_width
     number_aliens_x = int(available_space_x / (2 * alien_width))
-    # Cria a primeira linha de alienígenas y 
-    for alien_number in range(number_aliens_x): # Cria um alienígena e o posiciona na linha z
-        alien = Alien(ai_settings, screen) 
-        alien.x = alien_width + 2*alien_width*alien_number 
-        alien.rect.x = alien.x 
-        aliens.add(alien) 
+    return number_aliens_x + 1
+
+def create_alien(ai_settings, screen, aliens, alien_number):
+    # Cria um alienígena e o posiciona na linha 
+    alien = Alien(ai_settings, screen)
+    alien_width = alien.rect.width
+    alien.x = alien_width + 2*alien_width*alien_number 
+    alien.rect.x = alien.x 
+    aliens.add(alien) 
+
+
 
 
 def update_screen(ai_settings, screen, ship, aliens, bullets):
