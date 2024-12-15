@@ -16,7 +16,7 @@ def run_game():
     bullets = Group()
     aliens = Group()
     #alien = Alien(ai_settings,screen)
-    gf.create_fleet(ai_settings, screen,aliens)
+    gf.create_fleet(ai_settings, screen,ship,aliens)
 
     #bg_color = (230, 230, 230)
 # Inicia o laço principal do jogo 
@@ -25,6 +25,8 @@ def run_game():
         gf.check_events(ai_settings, screen, ship, bullets)
         ship.update()
         bullets.update() 
+        gf.update_aliens(aliens)
+
         # Deixa a tela mais recente visível z
         gf.update_screen(ai_settings, screen, ship, aliens, bullets)
 
