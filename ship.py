@@ -1,10 +1,11 @@
 import pygame
-#from settings import Settings
+from pygame.sprite import Sprite
 
-class Ship():
+class Ship(Sprite):
     
     def __init__(self,ai_settings,screen):
         #self.ai_settings = Settings()
+        super(Ship, self).__init__()
         self.screen = screen
         self.ai_settings = ai_settings
         self.image = pygame.image.load('images/ship.bmp')
@@ -17,6 +18,11 @@ class Ship():
         self.moving_right = False  #FLAG DE MOVIMENTO
         self.moving_left = False
 #Atualiza a posição da espaçonave de acordo com a flag de movimento    
+    
+    def center_ship(self):
+        """Center the ship on the screen."""
+        self.center = self.screen_rect.centerx
+    
     def update(self):
         self.rect.centerx = self.center
         

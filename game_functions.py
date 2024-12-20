@@ -1,7 +1,9 @@
 import sys
+from time import sleep
 import pygame
 from bullet import Bullet
 from alien import Alien
+
 
 #Responde a eventos de pressionamento de teclas e de mouse
 def check_keydown_events(event, ai_settings, screen, ship, bullets): 
@@ -11,8 +13,9 @@ def check_keydown_events(event, ai_settings, screen, ship, bullets):
     elif event.key == pygame.K_LEFT: 
         ship.moving_left = True
     elif event.key == pygame.K_SPACE: # Cria um novo projétil e o adiciona ao grupo de projéteis 
-        new_bullet = Bullet(ai_settings, screen, ship)
-        bullets.add(new_bullet)
+        #new_bullet = Bullet(ai_settings, screen, ship)
+        #bullets.add(new_bullet)
+        fire_bullet(ai_settings,screen,ship,bullets)
     elif event.key == pygame.K_q: 
         sys.exit()  #fecha o jogo quando pressionado Q
 
@@ -24,7 +27,7 @@ def check_keyup_events(event, ship):
     elif event.key == pygame.K_LEFT: 
         ship.moving_left = False
 
-def check_events(ai_settings, screen, ship,bullets):
+def check_events(ai_settings, screen, stats, sb, play_button, ship, aliens, bullets):
     for event in pygame.event.get():
         if event.type == pygame.QUIT: 
             sys.exit()
@@ -35,19 +38,56 @@ def check_events(ai_settings, screen, ship,bullets):
         elif event.type == pygame.KEYUP: 
             check_keyup_events(event, ship)
 
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            check_play_button(ai_settings,screen,stats,sb,play_button,ship,aliens,bullets,mouse_x,mouse_y)
+
+def check_play_button(ai_settings, screen, stats, sb, play_button, ship, aliens, bullets, mouse_x, mouse_y):
+    """starta um novo jogo quando aperta play"""
+    button_clicked = play_button.rect.collidepoint(mouse_x, mouse_y)
+    if button_clicked and not stats.game_active:
+        # Reseta o game settings.
+        ai_settings.initialize_dynamic_settings()
+
+        # esconde o  mouse cursor
+        pygame.mouse.set_visible(False)
+
+        # Reseta estatisticas
+        stats.reset_stats()
+        stats.game_active = True
+
+        # Reseta o scoreboard
+        sb.prep_score()
+        sb.prep_high_score()
+        sb.prep_level()
+        sb.prep_ships()
+
+        aliens.empty()
+        bullets.empty()
+
+        create_fleet(ai_settings, screen, ship, aliens)
+        ship.center_ship()
+
+
+def fire_bullet(ai_settings,screen,ship,bullets):
+    if len(bullets) < ai_settings.bullets_allowed:
+        new_bullet = Bullet(ai_settings, screen, ship)
+        bullets.add(new_bullet)
+
+
 def create_fleet(ai_settings, screen, ship, aliens): #Cria uma frota completa de alienígenas."""
     # Cria um alienígena e calcula o número de alienígenas em uma linha # Oespaçamento entre os alienígenas é igual à largura de um alienígena u
     # Cria a primeira linha de alienígenas y 
     #for alien_number in range(number_aliens_x): # Cria um alienígena e o posiciona na linha z
     alien = Alien(ai_settings, screen)
-    number_aliens_x = get_number_aliens(ai_settings, alien.rect.width)
+    number_aliens_x = get_number_aliens_x(ai_settings, alien.rect.width)
     number_rows = get_number_rows(ai_settings, ship.rect.height, alien.rect.height)
     for row_number in range(number_rows):
         for alien_number in range(number_aliens_x):
             create_alien(ai_settings, screen, aliens,alien_number, row_number)
 
 
-def get_number_aliens(ai_settings,alien_width): #Determina o número de 
+def get_number_aliens_x(ai_settings,alien_width): #Determina o número de 
 #alienígenas que cabem em uma  linha
     available_space_x = ai_settings.screen_width - 2 * alien_width
     number_aliens_x = int(available_space_x / (2 * alien_width))
@@ -72,17 +112,108 @@ def create_alien(ai_settings, screen, aliens, alien_number,row_number):
 
 
 
-def update_screen(ai_settings, screen, ship, aliens, bullets):
+def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_button,dados_button):
     screen.fill(ai_settings.bg_color)
     for bullet in bullets.sprites(): 
         bullet.draw_bullet()
     ship.blitme()
     #alien.blitme()
     aliens.draw(screen)
-        
+    sb.show_score()
+
+    if not stats.game_active:
+        play_button.draw_button()
+        dados_button.draw_button()
     pygame.display.flip()
 
-def update_aliens(aliens):
+def update_aliens(ai_settings, screen, stats, sb, ship, aliens, bullets):
+    check_fleet_edges(ai_settings, aliens)
     aliens.update()
+    if pygame.sprite.spritecollideany(ship, aliens):
+        ship_hit(ai_settings, screen, stats, sb, ship, aliens, bullets)
     #atualiza as posicoes dos alieniginas
+    check_aliens_bottom(ai_settings, screen, stats, sb, ship, aliens, bullets)
+
     ...
+
+#para ver se um alienigina esta na borda
+def check_fleet_edges(ai_settings, aliens):
+    for alien in aliens.sprites(): 
+        if alien.check_edges():
+            change_fleet_direction(ai_settings, aliens) 
+            break
+
+#faz a frota desce/mudar de direção
+def change_fleet_direction(ai_settings, aliens):
+    for alien in aliens.sprites():
+        alien.rect.y += ai_settings.fleet_drop_speed
+    ai_settings.fleet_direction *= -1
+
+def update_bullets(ai_settings, screen, stats, sb, ship, aliens, bullets):
+    #atualiza a posicao do projetil e deleta os antigos
+    bullets.update()
+    #se livra das balas que sumiram
+    for bullet in bullets.copy():
+        if bullet.rect.bottom <= 0:
+            bullets.remove(bullet)
+
+
+    check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, aliens, bullets)
+
+def check_high_score(stats, sb):
+    if stats.score > stats.high_score:
+        stats.high_score = stats.score
+        sb.prep_high_score()
+
+def check_bullet_alien_collisions(
+    ai_settings, screen, stats, sb, ship, aliens, bullets):
+    collisions = pygame.sprite.groupcollide(bullets, aliens, True, True)
+
+    if collisions:
+        for aliens in collisions.values():
+            stats.score += ai_settings.alien_points * len(aliens)
+            sb.prep_score()
+        check_high_score(stats, sb)
+
+    if len(aliens) == 0:
+            # se a frota e distruida passa o nivel
+            bullets.empty()
+            ai_settings.increase_speed()
+
+            # Increase level.
+            stats.level += 1
+            sb.prep_level()
+
+            create_fleet(ai_settings, screen, ship, aliens)
+
+def ship_hit(ai_settings, screen, stats, sb, ship, aliens, bullets):
+    #colisao da nave
+    if stats.ships_left > 0:
+        stats.ships_left -= 1
+
+        sb.prep_ships()
+
+    else:
+        stats.game_active = False
+        pygame.mouse.set_visible(True)
+
+    # esvazia a lista.
+    aliens.empty()
+    bullets.empty()
+
+    # cria nova frota e centraliza nave.
+    create_fleet(ai_settings, screen, ship, aliens)
+    ship.center_ship()
+
+    # Pause.
+    sleep(0.5)
+
+
+def check_aliens_bottom(ai_settings, screen, stats, sb, ship, aliens, bullets):
+    #ve se os aliens chegaram  em baixo
+    screen_rect = screen.get_rect()
+    for alien in aliens.sprites():
+        if alien.rect.bottom >= screen_rect.bottom:
+            ship_hit(ai_settings, screen, stats, sb, ship, aliens, bullets)
+            break
+
