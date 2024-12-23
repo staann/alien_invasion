@@ -17,7 +17,9 @@ def run_game():
     screen = pygame.display.set_mode((ai_settings.screen_width, ai_settings.screen_height))
     pygame.display.set_caption("Alien Invasion")
     play_button = Button(ai_settings, screen, "Jogar")
-    disciplina_button = Dados(ai_settings,screen, "Disciplina : FGA0158","Nome : Gustavo Choueiri","Matricula : 232014010")
+    disciplina_button = Dados(ai_settings,screen, "Disciplina : FGA0158","Nome : Gustavo Choueiri","Matricula : 232014010",
+'                                      Controles:                                    ',
+'Espaço: atira ; Seta esquerda/direita : controla a nave')
     #matricula_buttom = Dados(ai_settings,screen, "Matricula : 232014010")
     #nome_buttom = Dados(ai_settings,screen, "Nome : Gustavo Choueiri")
     
