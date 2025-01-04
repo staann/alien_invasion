@@ -1,6 +1,6 @@
-Projeto 'Invasão Alíenigina'
-Aluno : Gustavo Choueiri
-Matrícula : 232014010
+# Projeto 'Invasão Alíenigina'
+# Aluno : Gustavo Choueiri
+# Matrícula : 232014010
 
 Executar o jogo no arquivo 'alien_invasion.py'
 o arquivo 'requirements.txt' está na pasta 'venv'
