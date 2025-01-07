@@ -161,8 +161,8 @@ def update_bullets(ai_settings, screen, stats, sb, ship, aliens, bullets):
     check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, aliens, bullets)
 
 def check_high_score(stats, sb):
-    if stats.score > stats.high_score:
-        stats.high_score = stats.score
+    if stats._score > stats.high_score:
+        stats.high_score = stats._score
         sb.prep_high_score()
 
 def check_bullet_alien_collisions(
@@ -171,7 +171,7 @@ def check_bullet_alien_collisions(
 
     if collisions:
         for aliens in collisions.values():
-            stats.score += ai_settings.alien_points * len(aliens)
+            stats._score += ai_settings.alien_points * len(aliens)
             sb.prep_score()
         check_high_score(stats, sb)
 
@@ -181,7 +181,7 @@ def check_bullet_alien_collisions(
             ai_settings.increase_speed()
 
             # Increase level.
-            stats.level += 1
+            stats._level += 1
             sb.prep_level()
 
             create_fleet(ai_settings, screen, ship, aliens)

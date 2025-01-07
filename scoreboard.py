@@ -19,7 +19,7 @@ class Scoreboard:
         self.prep_ships()
 
     def prep_score(self):
-        rounded_score = int(round(self.stats.score, -1))
+        rounded_score = int(round(self.stats._score, -1))
         score_str = "{:,}".format(rounded_score)
         self.score_image = self.font.render(
             score_str, True, self.text_color, self.ai_settings.bg_color
@@ -42,7 +42,7 @@ class Scoreboard:
 
     def prep_level(self):
         self.level_image = self.font.render(
-            str(self.stats.level), True, self.text_color, self.ai_settings.bg_color
+            str(self.stats._level), True, self.text_color, self.ai_settings.bg_color
         )
 
         # Position the level below the score.
