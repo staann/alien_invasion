@@ -1,9 +1,6 @@
-# Projeto 'Invasão Alíenigina'
-# Aluno : Gustavo Choueiri
-# Matrícula : 232014010
+# Invasão Alíenigina
 
-Executar o jogo no arquivo *'alien_invasion.py'*
-o arquivo 'requirements.txt' está na pasta 'venv'
+**Jogo desenvolvido para aprimorar habilidades de Orientação a Objetos, utilizando a biblioteca Pygame**
 
 ## Controles:
 
